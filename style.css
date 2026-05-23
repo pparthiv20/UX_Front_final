@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800&display=swap');
+
 /* ===================================================================
    UX PACIFIC SHOP - MAIN STYLESHEET
    ===================================================================
@@ -40,11 +42,15 @@ body {
 }
 
 body {
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Gabarito", "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   /* background-color: #01010d; */
   background-color: #000;
   color: #ffffff;
   line-height: 1.4;
+}
+
+.is-hidden {
+  display: none;
 }
 
 img {
@@ -3765,6 +3771,15 @@ body.shopAll .cta-card {
   margin-top: 24px;
   color: var(--text-muted);
   font-size: 14px;
+}
+
+.auth-status-block {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.auth-message-spaced {
+  margin-bottom: 24px;
 }
 
 .auth-link {

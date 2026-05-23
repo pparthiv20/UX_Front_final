@@ -3875,6 +3875,115 @@ window.loadOrderConfirmationPage = loadOrderConfirmationPage;
     }
   }
 
+  function initResetPasswordPage() {
+    const page = document.body;
+    const form = document.getElementById('reset-password-form');
+    if (!page?.classList.contains('reset-password-page') || !form) return;
+
+    const tokenChecking = document.getElementById('token-checking');
+    const tokenInvalid = document.getElementById('token-invalid');
+    const errorBox = document.getElementById('reset-error');
+    const successBox = document.getElementById('reset-success');
+    const saveButton = document.getElementById('save-btn');
+    const saveText = document.getElementById('save-text');
+    const saveLoader = document.getElementById('save-loader');
+    const token = (page.dataset.resetToken || '').trim();
+    const email = (page.dataset.resetEmail || '').trim().toLowerCase();
+
+    const toggleHidden = (element, hidden) => {
+      if (!element) return;
+      element.classList.toggle('is-hidden', hidden);
+    };
+
+    const showError = (message) => {
+      if (!errorBox) return;
+      errorBox.textContent = message;
+      toggleHidden(errorBox, false);
+    };
+
+    const showInvalidState = (message) => {
+      toggleHidden(tokenChecking, true);
+      if (message) {
+        const invalidMessage = tokenInvalid?.querySelector('.error-message');
+        if (invalidMessage) invalidMessage.textContent = `${message} Please request a new reset link.`;
+      }
+      toggleHidden(tokenInvalid, false);
+    };
+
+    const verifyToken = async () => {
+      if (!token || !email) {
+        showInvalidState();
+        return;
+      }
+      try {
+        const response = await fetch('api/auth/verify-reset-token.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, email })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+          toggleHidden(tokenChecking, true);
+          toggleHidden(form, false);
+          return;
+        }
+        showInvalidState(data.message);
+      } catch (error) {
+        showInvalidState('Network error. Please try again.');
+      }
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const password = form.password.value;
+      const confirmPassword = form.confirm_password.value;
+      toggleHidden(errorBox, true);
+
+      if (password.length < 8) {
+        showError('Password must be at least 8 characters.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        showError('Passwords do not match.');
+        return;
+      }
+
+      if (saveButton) saveButton.disabled = true;
+      toggleHidden(saveText, true);
+      toggleHidden(saveLoader, false);
+
+      try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const response = await fetch('api/auth/reset-password.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token,
+            email,
+            password,
+            confirm_password: confirmPassword,
+            csrf_token: csrfToken
+          })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+          toggleHidden(form, true);
+          toggleHidden(successBox, false);
+        } else {
+          showError(data.message || 'Reset failed. Please try again.');
+        }
+      } catch (error) {
+        showError('Network error. Please try again.');
+      } finally {
+        if (saveButton) saveButton.disabled = false;
+        toggleHidden(saveText, false);
+        toggleHidden(saveLoader, true);
+      }
+    });
+
+    verifyToken();
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     ensureCartDrawer();
     hydrateSession();
@@ -3884,5 +3993,6 @@ window.loadOrderConfirmationPage = loadOrderConfirmationPage;
     initDataAddButtons();
     renderCartDrawer();
     syncWishlistFromAPI();
+    initResetPasswordPage();
   });
 })();
