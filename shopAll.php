@@ -100,18 +100,7 @@ $maxPrice = ceil($priceRange['max_price'] ?? 500);
             </div>
 
             <!-- Promo Card -->
-            <div class="sidebar-promo">
-              <div class="promo-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                  <path d="M2 17l10 5 10-5"></path>
-                  <path d="M2 12l10 5 10-5"></path>
-                </svg>
-              </div>
-              <h4>Premium Resources</h4>
-              <p>Get 20% off on all digital products this month!</p>
-              <!-- <a href="#" class="promo-btn">Learn More</a> -->
-            </div>
+            
           </aside>
 
           <!-- Product Grid -->

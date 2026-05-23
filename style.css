@@ -720,9 +720,9 @@ img {
 .uxp-category-heading h2 {
   margin: 0;
   color: #ffffff;
-  font-size: clamp(2.55rem, 4.6vw, 4rem);
+  font: size 42px;;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .uxp-category-heading p {
@@ -737,6 +737,7 @@ img {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
+  margin-bottom: 100px;
 }
 
 .uxp-category-card {
@@ -887,6 +888,7 @@ img {
 @media (max-width: 1100px) {
   .uxp-category-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 52px;
   }
 }
 
@@ -10948,7 +10950,7 @@ body.modal-open { overflow: hidden; }
 .category-hero {
   max-width: 720px;
   margin: 0 auto;
-  padding: 128px 24px 72px;
+  padding: 72px 24px 52px;
   text-align: center;
 }
 .category-kicker { display: none; }
@@ -10965,7 +10967,7 @@ body.modal-open { overflow: hidden; }
   font: 400 16px/1.7 Inter, sans-serif;
 }
 .category-grid-section {
-  max-width: 1110px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 88px;
 }

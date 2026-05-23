@@ -72,16 +72,4 @@
         <a href="cart.php">Cart</a>
     </div>
 </header>
-<div class="search-modal" id="site-search-modal" aria-hidden="true">
-    <div class="search-modal-backdrop" data-search-close></div>
-    <section class="search-modal-panel" role="dialog" aria-modal="true" aria-labelledby="search-modal-title">
-        <button type="button" class="search-modal-close" data-search-close aria-label="Close search">&times;</button>
-        <p class="search-modal-kicker">Search marketplace</p>
-        <h2 id="search-modal-title">Find products and bundles</h2>
-        <div class="search-modal-box">
-            <input id="site-search-modal-input" type="search" placeholder="Search products" autocomplete="off" />
-            <button type="button" id="site-search-modal-submit">Search</button>
-        </div>
-        <div class="search-modal-results" id="site-search-modal-results" role="listbox"></div>
-    </section>
-</div>
+
