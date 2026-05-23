@@ -14,14 +14,14 @@ $email = isset($_GET['email']) ? trim(strtolower($_GET['email'])) : '';
     <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" />
     <?php include 'includes/auth-preload.php'; ?>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
       <link rel="icon" type="image/x-icon" href="img/faviconUXP444@4x-789.png" />
     <link rel="stylesheet" href="style.css" />
   </head>
 
-  <body>
+  <body class="reset-password-page" data-reset-token="<?php echo htmlspecialchars($token, ENT_QUOTES, 'UTF-8'); ?>" data-reset-email="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>">
     <div class="page">
       <!-- NAVBAR -->
       <header class="site-header" id="navbar">
@@ -58,21 +58,21 @@ $email = isset($_GET['email']) ? trim(strtolower($_GET['email'])) : '';
               <p class="auth-subtitle">Enter and confirm your new password below.</p>
 
               <!-- Validation state (shown while checking token) -->
-              <div id="token-checking" style="text-align:center;padding:20px 0">
+              <div id="token-checking" class="auth-status-block">
                 <p>Validating reset link…</p>
               </div>
 
               <!-- Invalid token state -->
-              <div id="token-invalid" style="display:none">
-                <div class="error-message" style="margin-bottom:24px">
+              <div id="token-invalid" class="is-hidden">
+                <div class="error-message auth-message-spaced">
                   This reset link is invalid or has expired.
                   <br>Please <a href="forgot-password.php" class="auth-link">request a new one</a>.
                 </div>
               </div>
 
               <!-- New password form (shown after token validation) -->
-              <form class="auth-form" id="reset-password-form" style="display:none" onsubmit="handleResetPassword(event)">
-                <div id="reset-error" class="error-message" style="display:none"></div>
+              <form class="auth-form is-hidden" id="reset-password-form">
+                <div id="reset-error" class="error-message is-hidden"></div>
 
                 <div class="form-field">
                   <label for="new-password">New Password *</label>
@@ -105,13 +105,13 @@ $email = isset($_GET['email']) ? trim(strtolower($_GET['email'])) : '';
 
                 <button type="submit" class="btn-primary auth-submit" id="save-btn">
                   <span id="save-text">Save New Password</span>
-                  <span id="save-loader" style="display:none">Saving…</span>
+                  <span id="save-loader" class="is-hidden">Saving…</span>
                 </button>
               </form>
 
               <!-- Success state -->
-              <div id="reset-success" style="display:none">
-                <div class="success-message" style="margin-bottom:24px">
+              <div id="reset-success" class="is-hidden">
+                <div class="success-message auth-message-spaced">
                   <strong>Password updated successfully!</strong><br>
                   You can now sign in with your new password.
                 </div>
@@ -120,7 +120,7 @@ $email = isset($_GET['email']) ? trim(strtolower($_GET['email'])) : '';
                 </a>
               </div>
 
-              <p class="auth-footer" style="margin-top:24px">
+              <p class="auth-footer">
                 <a href="signin.php" class="auth-link">Back to Sign In</a>
               </p>
             </div>
@@ -136,100 +136,6 @@ $email = isset($_GET['email']) ? trim(strtolower($_GET['email'])) : '';
       </footer>
     </div>
 
-    <script>
-      // Token and email from server-rendered URL params
-      const RESET_TOKEN = <?php echo json_encode($token); ?>;
-      const RESET_EMAIL = <?php echo json_encode($email); ?>;
-
-      // On load: verify the token is still valid before showing the form
-      (async function verifyToken() {
-        if (!RESET_TOKEN || !RESET_EMAIL) {
-          showInvalid();
-          return;
-        }
-        try {
-          const res = await fetch('api/auth/verify-reset-token.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: RESET_TOKEN, email: RESET_EMAIL })
-          });
-          const data = await res.json();
-          if (data.status === 'success') {
-            document.getElementById('token-checking').style.display = 'none';
-            document.getElementById('reset-password-form').style.display = 'block';
-          } else {
-            showInvalid(data.message);
-          }
-        } catch (e) {
-          showInvalid('Network error. Please try again.');
-        }
-      })();
-
-      function showInvalid(msg) {
-        document.getElementById('token-checking').style.display = 'none';
-        const el = document.getElementById('token-invalid');
-        if (msg) el.querySelector('.error-message').textContent = msg + ' Please request a new reset link.';
-        el.style.display = 'block';
-      }
-
-      async function handleResetPassword(event) {
-        event.preventDefault();
-        const form = event.target;
-        const password = form.password.value;
-        const confirmPassword = form.confirm_password.value;
-        const btn = document.getElementById('save-btn');
-        const btnText = document.getElementById('save-text');
-        const btnLoader = document.getElementById('save-loader');
-        const errorDiv = document.getElementById('reset-error');
-
-        errorDiv.style.display = 'none';
-
-        if (password.length < 8) {
-          errorDiv.textContent = 'Password must be at least 8 characters.';
-          errorDiv.style.display = 'block';
-          return;
-        }
-        if (password !== confirmPassword) {
-          errorDiv.textContent = 'Passwords do not match.';
-          errorDiv.style.display = 'block';
-          return;
-        }
-
-        btn.disabled = true;
-        btnText.style.display = 'none';
-        btnLoader.style.display = 'inline';
-
-        try {
-          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-          const res = await fetch('api/auth/reset-password.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              token: RESET_TOKEN,
-              email: RESET_EMAIL,
-              password,
-              confirm_password: confirmPassword,
-              csrf_token: csrfToken
-            })
-          });
-          const data = await res.json();
-          if (data.status === 'success') {
-            form.style.display = 'none';
-            document.getElementById('reset-success').style.display = 'block';
-          } else {
-            errorDiv.textContent = data.message || 'Reset failed. Please try again.';
-            errorDiv.style.display = 'block';
-          }
-        } catch (e) {
-          errorDiv.textContent = 'Network error. Please try again.';
-          errorDiv.style.display = 'block';
-        }
-
-        btn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none';
-      }
-    </script>
     <script src="script.js"></script>
   </body>
 </html>
